@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>SBI BITS test</title>
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css", rel="stylesheet" />
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css", rel="stylesheet" />
+    </head>
+    <body>
+        <form class="form-inline">
+            <div class="form-group">
+                <label class="control-label" for="pair">Pair</label>
+                <select class="form-control" id="pair">
+                    <option selected value="all">all</option>
+                    <option value="btc_usd">btc_usd</option>
+                    <option value="btc_eur">btc_eur</option>
+                    <option value="eur_usd">eur_usd</option>
+                    <option value="xrp_usd">xrp_usd</option>
+                    <option value="xrp_eur">xrp_eur</option>
+                    <option value="xrp_btc">xrp_btc</option>
+                    <option value="ltc_usd">ltc_usd</option>
+                    <option value="ltc_eur">ltc_eur</option>
+                    <option value="ltc_btc">ltc_btc</option>
+                    <option value="eth_usd">eth_usd</option>
+                    <option value="eth_eur">eth_eur</option>
+                    <option value="eth_btc">eth_btc</option>
+                    <option value="bch_usd">bch_usd</option>
+                    <option value="bch_eur">bch_eur</option>
+                    <option value="bch_btc">bch_btc</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="control-label" for="date_from">From</label>
+                <div class="input-group date" id="date_from">
+                    <input type='text' class="form-control" name="date_from"/>
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                    <label class="control-label" for="date_to">To</label>
+                <div class="input-group date" id="date_to">
+                    <input type='text' class="form-control" name="date_to"/>
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <button type="button" class="btn btn-default" id="check">Check</button>
+            </div>
+        </form>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">datetime</th>
+                    <th scope="col">pair</th>
+                    <th scopt="col">price_between_max_min</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+        <script>
+            $('#date_from').datetimepicker({
+                'defaultDate': new Date(Date.now() - 3600000)
+            });
+            $('#date_to').datetimepicker({
+                'defaultDate': new Date(Date.now())
+            });
+            function addEntry(entry) {
+                let $row = $(
+                    `<tr>
+                        <td>${entry.datetime}</td>
+                        <td>${entry.pair}</td>
+                        <td>${entry.price_between_max_min}</td>
+                    </tr>`
+                );
+                $('tbody').append($row);
+            }
+            function clearTable() {
+                $('tbody').empty();
+            }
+            $('#check').click(() => {
+                let query = {
+                    "$and": [
+                        {"datetime": {"$gt": new Date(Date.parse($('#date_from').data().date))}},
+                        {"datetime": {"$lt": new Date(Date.parse($('#date_to').data().date))}}
+                    ]
+                };
+                let pair = $('#pair option:selected').val();
+                if (pair != "all") {
+                    query.pair = pair;
+                }
+                $.get('/query', query, (data) => {
+                    clearTable();
+                    for (let entry of data) {
+                        addEntry(entry);
+                    }
+                });
+            });
+            $('#check').click();
+        </script>
+    </body>
+</html>
