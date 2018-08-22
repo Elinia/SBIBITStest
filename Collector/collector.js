@@ -22,7 +22,7 @@ const reqs = currency_pairs.map(pair => ({
 }));
 
 function getData() {
-    // send requirements
+    // send requests
     let responses = reqs.map(req => new Promise(function(resolve, reject) {
         https.get(req.url, (resp) => {
             let data = '';
